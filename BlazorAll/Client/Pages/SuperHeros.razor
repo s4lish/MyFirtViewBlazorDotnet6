@@ -6,6 +6,19 @@
 
 <h3>SuperHeros</h3>
 
+<AuthorizeView Roles="Admin">
+    <NotAuthorized>
+        <span>
+            this is not authorized view
+        </span>
+    </NotAuthorized>
+    <Authorized>
+            <span>this is secret view .User is : @context.User.Identity.Name</span>
+            
+    </Authorized>
+</AuthorizeView>
+
+
 @if(sp.SuperHeros.Count <= 0)
 {
     <span>Loading...</span>
