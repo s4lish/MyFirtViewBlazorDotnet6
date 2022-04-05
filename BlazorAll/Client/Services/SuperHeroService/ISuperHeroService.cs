@@ -5,6 +5,6 @@ namespace BlazorAll.Client.Services.SuperHeroService
     {
         List<SuperHero> SuperHeros { get; set; }
 
-        Task GetSuperHeros();
+        Task<string> GetSuperHeros();
     }
 }

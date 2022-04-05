@@ -1,4 +1,5 @@
 ﻿
+using System.Net;
 using System.Net.Http.Json;
 
 namespace BlazorAll.Client.Services.SuperHeroService
@@ -12,11 +13,36 @@ namespace BlazorAll.Client.Services.SuperHeroService
         }
 
 
-        public List<SuperHero> SuperHeros { get; set; } = new List<SuperHero>();
+        public List<SuperHero> SuperHeros { get; set; }
 
-        public async Task GetSuperHeros()
+        public async Task<string> GetSuperHeros()
         {
-            SuperHeros = await _http.GetFromJsonAsync<List<SuperHero>>("api/SuperHero");
+            var res = await _http.GetAsync("api/SuperHero");
+
+
+            if (res.IsSuccessStatusCode)
+            {
+                SuperHeros = new List<SuperHero>();
+                SuperHeros = await res.Content.ReadFromJsonAsync<List<SuperHero>>();
+                return "";
+            }
+            else if(res.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                SuperHeros = null;
+                return "خطای احراز هویت";
+            }
+            else if (res.StatusCode == HttpStatusCode.NotFound)
+            {
+                SuperHeros = null;
+                return "اطلاعات یافت نشد.";
+            }
+            else
+            {
+                SuperHeros = null;
+                return "خطای سیستمی در دریافت اطلاعات از وب سرویس";
+
+            }
+
         }
     }
 }

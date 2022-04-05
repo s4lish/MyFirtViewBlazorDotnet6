@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlazorAll.Server.Controllers
@@ -16,6 +17,7 @@ namespace BlazorAll.Server.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles ="Admin")]
         public async Task<ActionResult<List<SuperHero>>> GetAll()
         {
             return Ok(await _sp.GetAll());

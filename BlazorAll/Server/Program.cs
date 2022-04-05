@@ -1,4 +1,7 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,6 +19,17 @@ builder.Services.AddScoped<ISuperHeroService, SuperHeroService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(opt =>
+{
+    opt.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+
+});
 
 var app = builder.Build();
 
@@ -42,7 +56,12 @@ app.UseRouting();
 
 
 app.MapRazorPages();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapControllers();
 app.MapFallbackToFile("index.html");
+
 
 app.Run();

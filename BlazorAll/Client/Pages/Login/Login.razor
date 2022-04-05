@@ -1,0 +1,41 @@
+﻿@layout SimplePage
+@page "/login"
+@inject ILoginService lg
+<PageTitle>Login page</PageTitle>
+
+<h3>login</h3>
+
+<EditForm Model=user OnSubmit="HandleLogin">
+    <div class="row">
+        <div class="col-md-6">
+           <label class="form-label" for="username">Name</label>
+          <InputText class="form-control" id="username" @bind-Value="user.UserName" />
+
+        </div>
+    </div>
+        <div class="row">
+        <div class="col-md-6">
+     <label class="form-label" for="password">Password</label>
+    <InputText class="form-control" id="password" @bind-Value="user.Password" type="password" />
+
+        </div>
+    </div>
+    <div class="row" style="margin-top:20px;">
+        <div class="col-md-6">
+                        <button class="btn btn-primary" type="submit">Do it</button>
+
+        </div>
+
+    </div>
+
+
+</EditForm>
+
+@code {
+    UserLoginDto user = new UserLoginDto();
+
+    async Task HandleLogin()
+    {
+         lg.Login(user);
+    }
+}

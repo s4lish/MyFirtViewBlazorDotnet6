@@ -1,0 +1,11 @@
+﻿@attribute [AllowAnonymous]
+@inject NavigationManager _nav
+
+<h3>LoginRedirect</h3>
+
+@code {
+   protected override void OnInitialized()
+    {
+        _nav.NavigateTo("/login",false);
+    }
+}

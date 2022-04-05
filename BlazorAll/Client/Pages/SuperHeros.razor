@@ -1,5 +1,4 @@
 ﻿@page "/superheroes"
-
 @inject ISuperHeroService sp
 
 <PageTitle>Super Heroes</PageTitle>
@@ -18,8 +17,9 @@
     </Authorized>
 </AuthorizeView>
 
-
-@if(sp.SuperHeros.Count <= 0)
+<br />
+<p>@message</p>
+@if(sp.SuperHeros == null)
 {
     <span>Loading...</span>
 
@@ -50,8 +50,9 @@ else
 }
 
 @code {
+    private string message = string.Empty;
     protected override async Task OnInitializedAsync()
     {
-        await sp.GetSuperHeros();
+        message = await sp.GetSuperHeros();
     }
 }

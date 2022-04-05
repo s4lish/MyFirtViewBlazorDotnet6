@@ -1,19 +1,57 @@
-﻿using System.Security.Claims;
+﻿using System.Net.Http.Headers;
+using System.Security.Claims;
 using System.Text.Json;
 
 namespace BlazorAll.Client;
 
+// most important part of client Side
 public class CustomAuthStateProvider : AuthenticationStateProvider
 {
+    private readonly ILocalStorageService _localStorage;
+    private readonly HttpClient _http;
+
+    public CustomAuthStateProvider(ILocalStorageService localStorage, HttpClient http)
+    {
+        _localStorage = localStorage;
+        _http = http;
+    }
+
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        string token = "eyJhbGciOiJodHRwOi8vd3d3LnczLm9yZy8yMDAxLzA0L3htbGRzaWctbW9yZSNobWFjLXNoYTUxMiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoic3RyaW5nIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiQWRtaW4iLCJleHAiOjE2NDcyNjE1MDl9.zAPwArMdu4n-u_pg_5SMDQ7J5QhA-JkHUL74ENVEKa730O4ch9WHtjXLEX5jCl8aJd330VsPAlvMaU7MifXAYQ";
+        string token = await _localStorage.GetItemAsStringAsync("token");
 
-        var identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+        var identity = new ClaimsIdentity();
+        var anonymousState = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+
+        _http.DefaultRequestHeaders.Authorization = null;
+
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            var claims = ParseClaimsFromJwt(token);
+
+            var expiry = claims.Where(claim => claim.Type.Equals("exp")).FirstOrDefault();
+
+            if (expiry != null)
+            {
+                var datetime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expiry.Value));
+                if (datetime.UtcDateTime < DateTime.UtcNow)
+                {
+                    await _localStorage.RemoveItemAsync("token");
+                    return anonymousState;
+                }
+            }
+
+
+            identity = new ClaimsIdentity(claims, "jwt");
+
+            _http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer" ,token.Replace("\"",""));
+        }
 
         //var identity = new ClaimsIdentity();
         var user = new ClaimsPrincipal(identity);
         var state = new AuthenticationState(user);
+
 
         NotifyAuthenticationStateChanged(Task.FromResult(state));
 
