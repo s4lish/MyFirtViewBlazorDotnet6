@@ -3,6 +3,8 @@ global using Microsoft.AspNetCore.Components.Authorization;
 global using System.Net.Http.Json;
 global using Blazored.LocalStorage;
 global using BlazorAll.Client.Services;
+global using BlazorAll.Shared.RequestFeatures;
+global using BlazorAll.Client.Features;
 
 using BlazorAll.Client;
 using BlazorAll.Client.Services.LoginService;
@@ -17,7 +19,7 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
-builder.Services.AddScoped<ISuperHeroService, SuperHeroService>();
+builder.Services.AddScoped<ISuperHerohttpService, SuperHerohttpService>();
 builder.Services.AddScoped<IWeatherService, WeatherService>();
 builder.Services.AddScoped<ILoginService, LoginService>();
 

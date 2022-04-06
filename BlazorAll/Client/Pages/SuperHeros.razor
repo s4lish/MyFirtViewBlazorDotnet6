@@ -1,5 +1,5 @@
 ﻿@page "/superheroes"
-@inject ISuperHeroService sp
+@inject ISuperHerohttpService sp
 
 <PageTitle>Super Heroes</PageTitle>
 
@@ -18,8 +18,7 @@
 </AuthorizeView>
 
 <br />
-<p>@message</p>
-@if(sp.SuperHeros == null)
+@if(!listhero.Any())
 {
     <span>Loading...</span>
 
@@ -30,13 +29,13 @@ else
         <thead>
             <tr>
                 <th>Id</th>
-                <th>Name. (C)</th>
+                <th>Name</th>
                 <th>Family</th>
                 <th>SuperHero</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var list in sp.SuperHeros)
+            @foreach (var list in listhero)
             {
                 <tr>
                     <td>@list.Id</td>
@@ -47,12 +46,40 @@ else
             }
         </tbody>
     </table>
+    <div class="row">
+    <div class="col">
+        <Pagination MetaData="metadata" Spread="5" SelectedPage="SelectedPage" />
+    </div>
+</div>
 }
 
 @code {
-    private string message = string.Empty;
+    public List<SuperHero> listhero { get; set; } = new List<SuperHero>();
+    public MetaData metadata { get; set; } = new MetaData();
+    private SuperHeroParametes _sp = new SuperHeroParametes();
+
+
     protected override async Task OnInitializedAsync()
     {
-        message = await sp.GetSuperHeros();
+
+        await GetInfos();
+
+    }
+
+        private async Task SelectedPage(int page)
+    {
+        _sp.PageNumber = page;
+        await GetInfos();
+
+    }
+
+
+        private async Task GetInfos()
+    {
+
+        var response = await sp.GetSuperHeros(_sp);
+
+        listhero = response.Items;
+        metadata = response.MetaData;
     }
 }

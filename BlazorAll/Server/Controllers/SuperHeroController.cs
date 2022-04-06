@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Text.Json;
 
 namespace BlazorAll.Server.Controllers
 {
@@ -16,11 +17,20 @@ namespace BlazorAll.Server.Controllers
 
 
 
+        //[HttpGet("all")]
+        //[Authorize(Roles ="Admin")]
+        //public async Task<ActionResult<List<SuperHero>>> alllist()
+        //{
+        //    return Ok(await _sp.GetAll());
+        //}
+
         [HttpGet]
-        [Authorize(Roles ="Admin")]
-        public async Task<ActionResult<List<SuperHero>>> GetAll()
+        [Authorize(Roles = "Admin")]
+        public async Task<ActionResult<PagedList<SuperHero>>> Get([FromQuery] SuperHeroParametes SuperHeroParametes)
         {
-            return Ok(await _sp.GetAll());
+            var heros = await _sp.GetInfo(SuperHeroParametes);
+            Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(heros.MetaData));
+            return Ok(heros);
         }
     }
 }
